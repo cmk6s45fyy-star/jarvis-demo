@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Jarvis demo — an AI command centre and life coach. Example data only.">
+<meta name="robots" content="noindex, nofollow">
+<title>Jarvis — Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%2300F0FF' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2300F0FF'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#050811;
+  --cy:#00F0FF;
+  --am:#FFB800;
+  --tx:#E8F4FF;
+  --mu:#8AA3B8;
+  --card:rgba(10,16,32,.72);
+  --line:rgba(0,240,255,.22);
+  --good:#3DFFB0;
+  --bad:#FF5A6A;
+  --hf:"Chakra Petch",system-ui,sans-serif;
+  --bf:Inter,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--tx);font-family:var(--bf);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:var(--cy)}
+
+.bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(900px 500px at 50% -8%,rgba(0,240,255,.14),transparent 62%),
+    radial-gradient(700px 480px at 80% 110%,rgba(255,184,0,.07),transparent 60%),
+    radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.55)),
+    var(--bg);
+}
+.bgfx:before{content:"";position:absolute;inset:0;opacity:.22;
+  background-image:linear-gradient(rgba(0,240,255,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.09) 1px,transparent 1px);
+  background-size:48px 48px;mask-image:radial-gradient(ellipse at 50% 30%,#000 20%,transparent 75%)}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(0,240,255,.03) 50%,transparent);background-size:100% 8px;opacity:.35;animation:scan 9s linear infinite}
+
+.wrap{position:relative;z-index:2;width:min(980px,calc(100% - 32px));margin:0 auto;padding:18px 0 48px}
+
+.banner{display:flex;justify-content:center;margin-bottom:22px}
+.banner span{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;border:1px solid rgba(255,184,0,.45);background:rgba(255,184,0,.08);color:var(--am);font:600 11px/1 var(--hf);letter-spacing:.16em;text-transform:uppercase}
+.banner i{width:6px;height:6px;border-radius:50%;background:var(--am);box-shadow:0 0 8px var(--am);animation:blink 1.8s ease-in-out infinite}
+
+.hero{text-align:center;padding:8px 0 28px}
+.orb{position:relative;width:220px;height:220px;margin:0 auto 22px}
+.orb .core{position:absolute;inset:78px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff 0 12%,var(--cy) 38%,rgba(0,240,255,.15) 68%,transparent 100%);box-shadow:0 0 28px var(--cy),0 0 70px rgba(0,240,255,.45),0 0 120px rgba(0,240,255,.18);animation:pulse 3.2s ease-in-out infinite}
+.orb .ring{position:absolute;border-radius:50%;border:1px solid rgba(0,240,255,.4);border-left-color:transparent;border-bottom-color:transparent}
+.orb .r1{inset:18px;animation:spin 10s linear infinite;box-shadow:0 0 12px rgba(0,240,255,.15)}
+.orb .r2{inset:0;border-color:rgba(255,184,0,.35);border-right-color:transparent;border-top-color:transparent;animation:spinrev 22s linear infinite}
+.orb .r3{inset:36px;border-style:dashed;border-color:rgba(0,240,255,.28);animation:spin 18s linear infinite reverse}
+.orb .ticks{position:absolute;inset:-8px;border-radius:50%;background:repeating-conic-gradient(rgba(0,240,255,.7) 0 1.4deg,transparent 1.4deg 12deg);-webkit-mask:radial-gradient(closest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));mask:radial-gradient(closest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));animation:spinrev 40s linear infinite;opacity:.75}
+.orb .arc{position:absolute;inset:52px;border-radius:50%;border:2px solid transparent;border-top-color:var(--cy);border-right-color:rgba(0,240,255,.4);filter:drop-shadow(0 0 6px var(--cy));animation:spin 6s linear infinite}
+
+.kicker{font:600 11px/1 var(--hf);letter-spacing:.38em;color:var(--cy);text-transform:uppercase;margin-bottom:10px}
+h1{font:700 56px/.95 var(--hf);letter-spacing:.42em;text-indent:.42em;text-transform:uppercase;color:#F4FCFF;text-shadow:0 0 10px rgba(0,240,255,.9),0 0 28px rgba(0,240,255,.5),0 0 60px rgba(0,240,255,.25)}
+.tag{margin-top:12px;font:500 16px/1.45 var(--bf);color:var(--mu);max-width:34em;margin-left:auto;margin-right:auto}
+.tag b{color:var(--tx);font-weight:600}
+
+.sec{margin:36px 0}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px}
+.sec-h h2{font:600 13px var(--hf);letter-spacing:.22em;text-transform:uppercase;color:var(--cy);text-shadow:0 0 8px rgba(0,240,255,.45)}
+.sec-h p{font-size:12px;color:var(--mu)}
+
+.cards{display:grid;grid-template-columns:1fr;gap:12px}
+.card{position:relative;padding:20px 18px 18px;background:var(--card);border:1px solid var(--line);border-top-color:rgba(180,250,255,.45);border-radius:16px;backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);box-shadow:0 10px 28px -16px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden}
+.card:before{content:"";position:absolute;top:0;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,240,255,.7),transparent);opacity:.7}
+.card h3{font:600 16px var(--hf);letter-spacing:.06em;margin:10px 0 8px;color:#F4FCFF}
+.card p{font-size:14px;line-height:1.55;color:var(--mu)}
+.ico{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;border:1px solid rgba(0,240,255,.35);background:rgba(0,240,255,.08);color:var(--cy);box-shadow:0 0 14px rgba(0,240,255,.2)}
+.ico.am{border-color:rgba(255,184,0,.4);background:rgba(255,184,0,.08);color:var(--am);box-shadow:0 0 14px rgba(255,184,0,.18)}
+.ico svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.diff{display:grid;grid-template-columns:1fr;gap:0;padding:0;overflow:hidden}
+.diff-item{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;padding:18px 18px;border-bottom:1px solid rgba(0,240,255,.1)}
+.diff-item:last-child{border-bottom:0}
+.diff n{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;border:1px solid rgba(0,240,255,.4);background:rgba(0,240,255,.08);font:700 12px var(--hf);color:var(--cy)}
+.diff h3{margin:2px 0 4px;font-size:15px}
+.diff p{font-size:13.5px}
+
+.msg{padding:0;overflow:hidden}
+.msg-hd{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(0,240,255,.12)}
+.av{width:36px;height:36px;border-radius:50%;border:1px solid var(--cy);background:radial-gradient(circle at 40% 35%,#fff 0 10%,var(--cy) 42%,#053148 100%);box-shadow:0 0 12px rgba(0,240,255,.55)}
+.who{font:600 13px var(--hf);letter-spacing:.08em}
+.meta{font-size:11px;color:var(--mu)}
+.msg-bd{padding:16px 18px 18px}
+.msg-bd p{font-size:14.5px;line-height:1.6;color:var(--tx);margin-bottom:12px}
+.msg-bd ol{margin:0 0 14px 18px;color:var(--tx)}
+.msg-bd li{margin:6px 0;font-size:14.5px;line-height:1.5}
+.msg-bd li b{color:var(--cy);font-weight:600}
+.prompt{display:inline-flex;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,240,255,.3);background:rgba(0,240,255,.06);font-size:13px;color:var(--cy)}
+
+.score{display:grid;gap:16px}
+.streaks{display:grid;gap:14px}
+.st{display:grid;gap:6px}
+.st-top{display:flex;justify-content:space-between;align-items:baseline;font-size:13px}
+.st-top b{font:600 13px var(--hf);letter-spacing:.08em}
+.st-top span{color:var(--cy);font:600 13px var(--hf)}
+.dots{display:flex;gap:6px}
+.dot{flex:1;height:28px;display:grid;place-items:center;border-radius:7px;border:1px solid rgba(0,240,255,.18);background:rgba(255,255,255,.03);font:600 10px var(--hf);letter-spacing:.04em;color:#5a7388}
+.dot.on{border-color:rgba(0,240,255,.55);background:rgba(0,240,255,.16);color:var(--cy);box-shadow:0 0 10px rgba(0,240,255,.25)}
+.dot.body.on{border-color:rgba(255,184,0,.55);background:rgba(255,184,0,.14);color:var(--am);box-shadow:0 0 10px rgba(255,184,0,.2)}
+.dot.top.on{border-color:rgba(61,255,176,.5);background:rgba(61,255,176,.12);color:var(--good);box-shadow:0 0 10px rgba(61,255,176,.18)}
+
+.counts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+.cnt{text-align:center;padding:12px 8px}
+.ring{width:72px;height:72px;margin:0 auto 8px;position:relative}
+.ring svg{width:72px;height:72px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:6}
+.ring .track{stroke:rgba(0,240,255,.12)}
+.ring .val{stroke:var(--cy);stroke-linecap:round;filter:drop-shadow(0 0 4px var(--cy));transition:stroke-dashoffset .6s ease}
+.ring.am .val{stroke:var(--am);filter:drop-shadow(0 0 4px var(--am))}
+.ring.good .val{stroke:var(--good);filter:drop-shadow(0 0 4px var(--good))}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font:700 16px var(--hf);color:#F4FCFF}
+.cnt .l{font:600 10px var(--hf);letter-spacing:.14em;text-transform:uppercase;color:var(--mu)}
+
+.focus{margin-top:4px;padding:12px 14px;border-left:2px solid var(--am);background:rgba(255,184,0,.06);border-radius:0 10px 10px 0;font-size:13.5px;line-height:1.5;color:var(--tx)}
+.focus b{color:var(--am);font:600 11px var(--hf);letter-spacing:.14em;display:block;margin-bottom:4px}
+
+.group{margin-bottom:16px}
+.group h3{font:600 11px var(--hf);letter-spacing:.2em;text-transform:uppercase;color:var(--mu);margin:0 0 8px 2px}
+.group.urgent h3{color:var(--bad)}
+.group.week h3{color:var(--am)}
+.task{display:grid;grid-template-columns:auto 1fr auto;gap:10px 12px;align-items:center;width:100%;text-align:left;padding:12px 12px;margin:0 0 8px;border-radius:12px;border:1px solid rgba(0,240,255,.14);background:rgba(8,14,28,.55);transition:border-color .2s,background .2s,opacity .25s}
+.task:hover{border-color:rgba(0,240,255,.4);background:rgba(0,240,255,.05)}
+.task.done{opacity:.48}
+.task.done .title{text-decoration:line-through;color:var(--mu)}
+.ck{width:22px;height:22px;border-radius:6px;border:1.5px solid rgba(0,240,255,.7);display:grid;place-items:center;color:transparent;box-shadow:0 0 8px rgba(0,240,255,.2);transition:background .2s,color .2s}
+.task.done .ck{background:var(--cy);color:#031018;box-shadow:0 0 12px rgba(0,240,255,.45)}
+.ck svg{width:12px;height:12px}
+.title{font:600 14px/1.35 var(--bf);color:#F4FCFF}
+.meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip,.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font:600 10px var(--hf);letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(0,240,255,.3);color:#BFEFFF;background:rgba(0,240,255,.08)}
+.chip.pa{border-color:rgba(0,240,255,.4)}
+.chip.bk{border-color:rgba(255,184,0,.45);color:#FFD27A;background:rgba(255,184,0,.08)}
+.chip.co{border-color:rgba(61,255,176,.4);color:#9CFFD6;background:rgba(61,255,176,.08)}
+.chip.ct{border-color:rgba(180,140,255,.45);color:#D4C4FF;background:rgba(180,140,255,.1)}
+.chip.tr{border-color:rgba(255,120,80,.45);color:#FFC2A8;background:rgba(255,120,80,.1)}
+.pill.open{border-color:rgba(0,240,255,.4);color:var(--cy)}
+.pill.overdue{border-color:rgba(255,90,106,.55);color:#FF8A96;background:rgba(255,90,106,.08)}
+.pill.done{border-color:rgba(61,255,176,.45);color:var(--good);background:rgba(61,255,176,.08)}
+.due{font-size:11px;color:var(--am);font-weight:500}
+.hint{font-size:12px;color:var(--mu);margin:-4px 0 12px}
+
+footer{margin-top:40px;text-align:center;font:500 12px var(--hf);letter-spacing:.16em;text-transform:uppercase;color:#4A6278}
+footer span{color:var(--cy)}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinrev{to{transform:rotate(-360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:.85}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes scan{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.hero,.sec{animation:rise .7s ease both}
+.sec:nth-of-type(2){animation-delay:.08s}
+.sec:nth-of-type(3){animation-delay:.14s}
+.sec:nth-of-type(4){animation-delay:.2s}
+.sec:nth-of-type(5){animation-delay:.26s}
+.sec:nth-of-type(6){animation-delay:.32s}
+
+@media(min-width:700px){
+  h1{font-size:72px}
+  .cards{grid-template-columns:repeat(3,1fr)}
+  .diff{grid-template-columns:repeat(3,1fr)}
+  .diff-item{border-bottom:0;border-right:1px solid rgba(0,240,255,.1);padding:20px 18px}
+  .diff-item:last-child{border-right:0}
+  .orb{width:250px;height:250px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,.orb .ring,.orb .ticks,.orb .arc,.orb .core,.banner i,.scan,.hero,.sec{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="bgfx" aria-hidden="true"></div>
+<div class="scan" aria-hidden="true"></div>
+<main class="wrap">
+  <div class="banner"><span><i></i> Demo with example data</span></div>
+
+  <header class="hero">
+    <div class="orb" aria-hidden="true">
+      <div class="ticks"></div>
+      <div class="ring r1"></div>
+      <div class="ring r2"></div>
+      <div class="ring r3"></div>
+      <div class="arc"></div>
+      <div class="core"></div>
+    </div>
+    <p class="kicker">AI command centre</p>
+    <h1>Jarvis</h1>
+    <p class="tag">An AI <b>command centre and life coach</b> — morning check-ins, a weekly scorecard, and one place for every task across a team of specialist bots.</p>
+  </header>
+
+  <section class="sec" aria-labelledby="who">
+    <div class="sec-h"><h2 id="who">Who Jarvis is</h2></div>
+    <div class="cards">
+      <article class="card">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21a8 8 0 1 0-8-8"/><path d="M12 7v5l3 2"/><path d="M4 21l2-4"/></svg></div>
+        <h3>Mindset coach</h3>
+        <p>Keeps the morning ritual honest: prayer first, one Bible chapter before scrolling, a sciatica-safe move, and a daily Top 3 with times.</p>
+      </article>
+      <article class="card">
+        <div class="ico am" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <h3>Master task tracker</h3>
+        <p>Pulls work from a team of specialist AI bots — PA, bookkeeper, trading, content and more — into one list, with owners, due dates and status.</p>
+      </article>
+      <article class="card">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 20h10M8 9h3M8 13h8"/></svg></div>
+        <h3>Private dashboard</h3>
+        <p>Keeps the live command centre private. This page is a public demo with made-up tasks, so nothing personal is on show.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="diff">
+    <div class="sec-h"><h2 id="diff">What makes Jarvis different</h2></div>
+    <div class="card diff">
+      <div class="diff-item">
+        <n>01</n>
+        <div>
+          <h3>Coaches the whole life</h3>
+          <p>Not just admin. Faith, body, a daily Top 3 and a Sunday scorecard sit alongside the work.</p>
+        </div>
+      </div>
+      <div class="diff-item">
+        <n>02</n>
+        <div>
+          <h3>A team of 25+ bots</h3>
+          <p>PA, bookkeeper, trading, content, design, legal and more. Every bot's tasks land in one hub.</p>
+        </div>
+      </div>
+      <div class="diff-item">
+        <n>03</n>
+        <div>
+          <h3>Runs on its own routines</h3>
+          <p>Morning check-ins, deadline watches and weekly scorecards. Nothing is sent without approval.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="am">
+    <div class="sec-h">
+      <h2 id="am">Example morning check-in</h2>
+      <p>Monday 07:12</p>
+    </div>
+    <article class="card msg">
+      <div class="msg-hd">
+        <div class="av" aria-hidden="true"></div>
+        <div>
+          <div class="who">JARVIS</div>
+          <div class="meta">Morning brief · example message</div>
+        </div>
+      </div>
+      <div class="msg-bd">
+        <p>Morning. Pray first, then read <b>Psalm 23</b> before you scroll.</p>
+        <ol>
+          <li><b>Body:</b> bird dog, 2 sets of 10 each side. Stop if anything runs down the leg.</li>
+          <li><b>Focus:</b> keep the morning ritual, then take the three jobs that move the week.</li>
+        </ol>
+        <p class="prompt">Reply with your Top 3 for today, with times if you can.</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="sec" aria-labelledby="sc">
+    <div class="sec-h">
+      <h2 id="sc">Example weekly scorecard</h2>
+      <p>9–15 Nov · sample week</p>
+    </div>
+    <div class="card score">
+      <div class="streaks">
+        <div class="st">
+          <div class="st-top"><b>Prayer / Bible</b><span>5 / 7</span></div>
+          <div class="dots" aria-label="Prayer streak, 5 of 7 days">
+            <span class="dot on">M</span><span class="dot on">T</span><span class="dot on">W</span><span class="dot on">T</span><span class="dot on">F</span><span class="dot">S</span><span class="dot">S</span>
+          </div>
+        </div>
+        <div class="st">
+          <div class="st-top"><b>Body</b><span>4 / 7</span></div>
+          <div class="dots" aria-label="Body streak, 4 of 7 days">
+            <span class="dot body on">M</span><span class="dot body on">T</span><span class="dot">W</span><span class="dot body on">T</span><span class="dot body on">F</span><span class="dot">S</span><span class="dot">S</span>
+          </div>
+        </div>
+        <div class="st">
+          <div class="st-top"><b>Top 3s sent</b><span>4 / 7</span></div>
+          <div class="dots" aria-label="Top 3 streak, 4 of 7 days">
+            <span class="dot top on">M</span><span class="dot top on">T</span><span class="dot top on">W</span><span class="dot">T</span><span class="dot top on">F</span><span class="dot">S</span><span class="dot">S</span>
+          </div>
+        </div>
+      </div>
+      <div class="counts" aria-label="Task status this week">
+        <div class="cnt">
+          <div class="ring good"><svg viewBox="0 0 72 72" aria-hidden="true"><circle class="track" cx="36" cy="36" r="30"/><circle class="val" cx="36" cy="36" r="30" stroke-dasharray="188.5" stroke-dashoffset="75.4"/></svg><b>12</b></div>
+          <div class="l">Done</div>
+        </div>
+        <div class="cnt">
+          <div class="ring"><svg viewBox="0 0 72 72" aria-hidden="true"><circle class="track" cx="36" cy="36" r="30"/><circle class="val" cx="36" cy="36" r="30" stroke-dasharray="188.5" stroke-dashoffset="113.1"/></svg><b>8</b></div>
+          <div class="l">Open</div>
+        </div>
+        <div class="cnt">
+          <div class="ring am"><svg viewBox="0 0 72 72" aria-hidden="true"><circle class="track" cx="36" cy="36" r="30"/><circle class="val" cx="36" cy="36" r="30" stroke-dasharray="188.5" stroke-dashoffset="169.6"/></svg><b>2</b></div>
+          <div class="l">Overdue</div>
+        </div>
+      </div>
+      <p class="focus"><b>Focus for next week</b>Lock the morning ritual, file the quarterly tax, and get three gym sessions in.</p>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="tk">
+    <div class="sec-h">
+      <h2 id="tk">Sample open tasks</h2>
+      <p id="live-count">9 open · example list</p>
+    </div>
+    <p class="hint">Tap a task to mark it done. This is a demo — nothing is saved.</p>
+    <div id="board"></div>
+  </section>
+
+  <footer>Built for <span>Kiz</span> · demo</footer>
+</main>
+<script>
+(function(){
+  const tasks = [
+    {g:'Urgent', t:'Chase plumber quote', o:'PA', c:'pa', d:'Today', s:'open'},
+    {g:'Urgent', t:'File quarterly tax', o:'Bookkeeper', c:'bk', d:'Tomorrow', s:'open'},
+    {g:'Urgent', t:'Send overdue invoice reminder', o:'Bookkeeper', c:'bk', d:'Yesterday', s:'overdue'},
+    {g:'This week', t:'Film 3 TikToks', o:'Content', c:'ct', d:'Wed', s:'open'},
+    {g:'This week', t:'Gym x3', o:'Coach', c:'co', d:'Fri', s:'open'},
+    {g:'This week', t:'Book flights', o:'PA', c:'pa', d:'Thu', s:'open'},
+    {g:'This week', t:'Review weekly budget', o:'Trading', c:'tr', d:'Fri', s:'open'},
+    {g:'Upcoming', t:'Renew domain', o:'PA', c:'pa', d:'2 Dec', s:'open'},
+    {g:'Upcoming', t:'Quarterly review call', o:'Coach', c:'co', d:'12 Dec', s:'open'}
+  ];
+  const order = ['Urgent','This week','Upcoming'];
+  const cls = {'Urgent':'urgent','This week':'week','Upcoming':'later'};
+  const board = document.getElementById('board');
+  const live = document.getElementById('live-count');
+  const tick = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5l3 3 5-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function counts(){
+    const open = tasks.filter(x => x.s !== 'done').length;
+    const done = tasks.filter(x => x.s === 'done').length;
+    live.textContent = done ? (open + ' open · ' + done + ' ticked · example list') : (open + ' open · example list');
+  }
+  function render(){
+    board.innerHTML = '';
+    order.forEach(name => {
+      const items = tasks.filter(x => x.g === name);
+      if(!items.length) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'group ' + cls[name];
+      wrap.innerHTML = '<h3>' + name + '</h3>';
+      items.forEach((item) => {
+        const i = tasks.indexOf(item);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'task' + (item.s === 'done' ? ' done' : '');
+        btn.setAttribute('aria-pressed', item.s === 'done' ? 'true' : 'false');
+        const pill = item.s === 'done' ? 'done' : item.s;
+        const label = item.s === 'done' ? 'Done' : (item.s === 'overdue' ? 'Overdue' : 'Open');
+        btn.innerHTML =
+          '<span class="ck">' + tick + '</span>' +
+          '<span><span class="title">' + item.t + '</span>' +
+          '<span class="meta-row"><span class="chip ' + item.c + '">' + item.o + '</span>' +
+          '<span class="due">' + item.d + '</span>' +
+          '<span class="pill ' + pill + '">' + label + '</span></span></span>';
+        btn.addEventListener('click', function(){
+          item.s = item.s === 'done' ? (item.d === 'Yesterday' ? 'overdue' : 'open') : 'done';
+          render();
+        });
+        wrap.appendChild(btn);
+      });
+      board.appendChild(wrap);
+    });
+    counts();
+  }
+  render();
+})();
+</script>
+</body>
+</html>
